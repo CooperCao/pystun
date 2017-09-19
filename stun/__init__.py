@@ -89,11 +89,17 @@ ChangedAddressError = "Meet an error, when do Test1 on Changed IP and Port"
 
 def _initialize():
     items = dictAttrToVal.items()
-    for i in range(len(items)):
-        dictValToAttr.update({items[i][1]: items[i][0]})
+    #print(items)
+    for v,k in items:
+        dictValToAttr.update({k:v})
+    #for i in range(len(items)):
+        #dictValToAttr.update({items[i][1]: items[i][0]})
+    #print(dictValToAttr)
     items = dictMsgTypeToVal.items()
-    for i in range(len(items)):
-        dictValToMsgType.update({items[i][1]: items[i][0]})
+    for v,k in items:
+        dictValToMsgType.update({k:v})
+    # for i in range(len(items)):
+    #     dictValToMsgType.update({items[i][1]: items[i][0]})
 
 
 def gen_tran_id():
@@ -132,45 +138,49 @@ def stun_test(sock, host, port, source_ip, source_port, send_data=""):
                 else:
                     retVal['Resp'] = False
                     return retVal
-        msgtype = binascii.b2a_hex(buf[0:2])
+        msgtype = binascii.b2a_hex(buf[0:2]).decode()
         bind_resp_msg = dictValToMsgType[msgtype] == "BindResponseMsg"
-        tranid_match = tranid.upper() == binascii.b2a_hex(buf[4:20]).upper()
+        #print(bind_resp_msg)
+        #print(tranid.upper())
+        #print(binascii.b2a_hex(buf[4:20]).decode().upper())
+        tranid_match = tranid.upper() == binascii.b2a_hex(buf[4:20]).decode().upper()
+        #print(tranid_match)
         if bind_resp_msg and tranid_match:
             recvCorr = True
             retVal['Resp'] = True
-            len_message = int(binascii.b2a_hex(buf[2:4]), 16)
+            len_message = int(binascii.b2a_hex(buf[2:4]).decode(), 16)
             len_remain = len_message
             base = 20
             while len_remain:
-                attr_type = binascii.b2a_hex(buf[base:(base + 2)])
-                attr_len = int(binascii.b2a_hex(buf[(base + 2):(base + 4)]), 16)
+                attr_type = binascii.b2a_hex(buf[base:(base + 2)]).decode()
+                attr_len = int(binascii.b2a_hex(buf[(base + 2):(base + 4)]).decode(), 16)
                 if attr_type == MappedAddress:
-                    port = int(binascii.b2a_hex(buf[base + 6:base + 8]), 16)
+                    port = int(binascii.b2a_hex(buf[base + 6:base + 8]).decode(), 16)
                     ip = ".".join([
-                        str(int(binascii.b2a_hex(buf[base + 8:base + 9]), 16)),
-                        str(int(binascii.b2a_hex(buf[base + 9:base + 10]), 16)),
-                        str(int(binascii.b2a_hex(buf[base + 10:base + 11]), 16)),
-                        str(int(binascii.b2a_hex(buf[base + 11:base + 12]), 16))
+                        str(int(binascii.b2a_hex(buf[base + 8:base + 9]).decode(), 16)),
+                        str(int(binascii.b2a_hex(buf[base + 9:base + 10]).decode(), 16)),
+                        str(int(binascii.b2a_hex(buf[base + 10:base + 11]).decode(), 16)),
+                        str(int(binascii.b2a_hex(buf[base + 11:base + 12]).decode(), 16))
                     ])
                     retVal['ExternalIP'] = ip
                     retVal['ExternalPort'] = port
                 if attr_type == SourceAddress:
-                    port = int(binascii.b2a_hex(buf[base + 6:base + 8]), 16)
+                    port = int(binascii.b2a_hex(buf[base + 6:base + 8]).decode(), 16)
                     ip = ".".join([
-                        str(int(binascii.b2a_hex(buf[base + 8:base + 9]), 16)),
-                        str(int(binascii.b2a_hex(buf[base + 9:base + 10]), 16)),
-                        str(int(binascii.b2a_hex(buf[base + 10:base + 11]), 16)),
-                        str(int(binascii.b2a_hex(buf[base + 11:base + 12]), 16))
+                        str(int(binascii.b2a_hex(buf[base + 8:base + 9]).decode(), 16)),
+                        str(int(binascii.b2a_hex(buf[base + 9:base + 10]).decode(), 16)),
+                        str(int(binascii.b2a_hex(buf[base + 10:base + 11]).decode(), 16)),
+                        str(int(binascii.b2a_hex(buf[base + 11:base + 12]).decode(), 16))
                     ])
                     retVal['SourceIP'] = ip
                     retVal['SourcePort'] = port
                 if attr_type == ChangedAddress:
-                    port = int(binascii.b2a_hex(buf[base + 6:base + 8]), 16)
+                    port = int(binascii.b2a_hex(buf[base + 6:base + 8]).decode(), 16)
                     ip = ".".join([
-                        str(int(binascii.b2a_hex(buf[base + 8:base + 9]), 16)),
-                        str(int(binascii.b2a_hex(buf[base + 9:base + 10]), 16)),
-                        str(int(binascii.b2a_hex(buf[base + 10:base + 11]), 16)),
-                        str(int(binascii.b2a_hex(buf[base + 11:base + 12]), 16))
+                        str(int(binascii.b2a_hex(buf[base + 8:base + 9]).decode(), 16)),
+                        str(int(binascii.b2a_hex(buf[base + 9:base + 10]).decode(), 16)),
+                        str(int(binascii.b2a_hex(buf[base + 10:base + 11]).decode(), 16)),
+                        str(int(binascii.b2a_hex(buf[base + 11:base + 12]).decode(), 16))
                     ])
                     retVal['ChangedIP'] = ip
                     retVal['ChangedPort'] = port
